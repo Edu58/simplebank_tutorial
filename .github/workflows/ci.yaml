@@ -24,7 +24,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          - 5432:5433
+          - 5433:5432
 
     steps:
       - name: Set up GO 1.x
@@ -46,9 +46,3 @@ jobs:
       
       - name: Test
         run: make test
-
-        env:
-            # The hostname used to communicate with the PostgreSQL service container
-            POSTGRES_HOST: localhost
-            # The default PostgreSQL port
-            POSTGRES_PORT: 5433
