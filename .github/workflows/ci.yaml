@@ -46,3 +46,9 @@ jobs:
       
       - name: Test
         run: make test
+
+      env:
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: localhost
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5433
