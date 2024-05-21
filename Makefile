@@ -13,6 +13,10 @@ migrateup:
 migratedown:
 	migrate -path db/migration -database "postgres://postgres:postgres@localhost:5433/simple_bank?sslmode=disable" -verbose down
 
+migrate-rollback:
+	migrate -path db/migration -database "postgres://postgres:postgres@localhost:5433/simple_bank?sslmode=disable" -verbose down 1
+
+
 sqlc:
 	sqlc generate
 
