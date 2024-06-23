@@ -14,7 +14,6 @@ var (
 	ErrInvalidHeader = errors.New("invalid header")
 )
 
-
 // These are claims
 type Payload struct {
 	ID        uuid.UUID        `json:"id"`
@@ -45,31 +44,39 @@ func NewPayload(username string, duration time.Duration) (*Payload, error) {
 }
 
 // GetExpirationTime implements the Claims interface.
-func (c *Payload) GetExpirationTime() (*jwt.NumericDate, error) {
-	return c.ExpiredAt, nil
+func (payload *Payload) GetExpirationTime() (*jwt.NumericDate, error) {
+	return payload.ExpiredAt, nil
 }
 
 // GetIssuedAt implements the Claims interface.
-func (c *Payload) GetIssuedAt() (*jwt.NumericDate, error) {
-	return c.IssuedAt, nil
+func (payload *Payload) GetIssuedAt() (*jwt.NumericDate, error) {
+	return payload.IssuedAt, nil
 }
 
 // GetNotBefore implements the Claims interface.
-func (c *Payload) GetNotBefore() (*jwt.NumericDate, error) {
-	return c.NotBefore, nil
+func (payload *Payload) GetNotBefore() (*jwt.NumericDate, error) {
+	return payload.NotBefore, nil
 }
 
 // GetAudience implements the Claims interface.
-func (c *Payload) GetAudience() (jwt.ClaimStrings, error) {
-	return c.Audience, nil
+func (payload *Payload) GetAudience() (jwt.ClaimStrings, error) {
+	return payload.Audience, nil
 }
 
 // GetIssuer implements the Claims interface.
-func (c *Payload) GetIssuer() (string, error) {
-	return c.Issuer, nil
+func (payload *Payload) GetIssuer() (string, error) {
+	return payload.Issuer, nil
 }
 
 // GetSubject implements the Claims interface.
-func (c *Payload) GetSubject() (string, error) {
-	return c.Subject, nil
+func (payload *Payload) GetSubject() (string, error) {
+	return payload.Subject, nil
+}
+
+func (payload *Payload) Valid() error {
+	if time.Now().After(payload.ExpiredAt.Time) {
+		return ErrExpiredToken
+	}
+
+	return nil
 }
