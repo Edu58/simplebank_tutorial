@@ -41,13 +41,16 @@ func NewServer(store db.Store, config util.Config) (*Server, error) {
 }
 
 func (server *Server) SetupRouter() {
-	server.router.POST("/accounts", server.createAccount)
-	server.router.GET("/accounts", server.listAccounts)
-	server.router.GET("/accounts/:id", server.getAccount)
-	server.router.POST("/transfer", server.createTransfer)
 	server.router.POST("/user", server.createUser)
 	server.router.POST("/user/login", server.loginUser)
+
+	protectedRouted := server.router.Group("/").Use(authMiddleware(server.tokenMaker))
+
 	server.router.POST("/user/:username", server.getUser)
+	protectedRouted.POST("/accounts", server.createAccount)
+	protectedRouted.GET("/accounts", server.listAccounts)
+	protectedRouted.GET("/accounts/:id", server.getAccount)
+	protectedRouted.POST("/transfer", server.createTransfer)
 }
 
 func (server *Server) Start(address string) error {
