@@ -43,6 +43,7 @@ func NewServer(store db.Store, config util.Config) (*Server, error) {
 func (server *Server) SetupRouter() {
 	server.router.POST("/user", server.createUser)
 	server.router.POST("/user/login", server.loginUser)
+	server.router.POST("/user/token/refresh", server.refreshUserToken)
 
 	protectedRouted := server.router.Group("/").Use(authMiddleware(server.tokenMaker))
 
