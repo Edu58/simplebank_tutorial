@@ -71,6 +71,9 @@ func (server *Server) createUser(ctx *gin.Context) {
 				return
 			}
 		}
+		
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	response := newUserResponse(userRecord)
