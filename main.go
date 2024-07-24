@@ -7,6 +7,9 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/lib/pq"
 	"github.com/techschool/simplebank/api"
@@ -31,9 +34,26 @@ func main() {
 		log.Fatal("cannot connect to db:", err)
 	}
 
+	runDbMigrations(config.MigrationsURL, config.DBSource)
+
 	store := db.NewStore(conn)
-	go runGRPCGatewayServer(config, store)
+	// go runGRPCGatewayServer(config, store)
+	runGinServer(config, store)
 	runGRPCServer(config, store)
+}
+
+func runDbMigrations(migrationUrl string, databaseUrl string) {
+	migration, err := migrate.New(migrationUrl, databaseUrl)
+
+	if err != nil {
+		log.Fatalln("Could not load migrations: ", err)
+	}
+
+	if err := migration.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalln("Could not run migrations: ", err)
+	}
+
+	log.Println("Migration run sucessfully")
 }
 
 func runGinServer(config util.Config, store db.Store) {
@@ -104,7 +124,7 @@ func runGRPCGatewayServer(config util.Config, store db.Store) {
 
 	mux := http.NewServeMux()
 	fs := http.FileServer(http.Dir("./docs/swagger"))
-	
+
 	mux.Handle("/", grpcMux)
 	mux.Handle("/swagger/", http.StripPrefix("/swagger/", fs))
 
